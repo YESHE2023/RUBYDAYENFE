@@ -27,6 +27,22 @@
   <div class="heart" style="left: 30%; animation-delay: 2s;">❤️</div>
   <div class="heart" style="left: 50%; animation-delay: 4s;">❤️</div>
   <div class="heart" style="left: 70%; animation-delay: 6s;">❤️</div>
+  <script>
+  function createHeart() {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerText = "❤️";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = (5 + Math.random() * 5) + "s";
+    document.body.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 10000);
+  }
+
+  setInterval(createHeart, 800); // crea un corazón cada 800ms
+</script>
 
 </body>
 </html>
