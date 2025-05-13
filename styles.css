@@ -51,10 +51,8 @@ footer {
 .heart {
   position: fixed;
   bottom: -50px;
-  width: 30px;
-  height: 30px;
-  background: url('heart.png') no-repeat center center;
-  background-size: contain;
-  animation: float 10s infinite;
+  font-size: 24px;
+  animation: float 10s linear infinite;
   opacity: 0.7;
+  color: #ff5e99;
 }
