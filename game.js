@@ -36,9 +36,24 @@ const goal = {
     width: 80,
     height: 80,
     x: canvas.width / 2 - 40, // Inicialmente en el carril central
-    y: -200 // Aparecerá desde arriba
+    y: -200, // Aparecerá desde arriba
+    speed: 2
 };
-const goalSpeed = 2;
+
+// Configuración de los obstáculos
+const obstacles = [];
+const obstacleSpeed = 3;
+const obstacleSpawnRate = 60; // Generar un obstáculo cada 60 frames (aproximadamente 1 segundo)
+let frameCount = 0;
+
+function createObstacle() {
+    const obstacleWidth = 40;
+    const obstacleHeight = 40;
+    const randomLane = Math.floor(Math.random() * lanes.length);
+    const obstacleX = lanes[randomLane];
+    const obstacleY = -obstacleHeight;
+    obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: obstacleHeight });
+}
 
 // Variables para el movimiento táctil
 let touchStartX = null;
@@ -65,25 +80,27 @@ function handleTouchMove(event) {
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
 
+    const sensitivity = 20; // Ajusta la sensibilidad del swipe
+
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
         // Movimiento horizontal (cambio de carril)
-        if (deltaX > 50) {
+        if (deltaX > sensitivity) {
             // Swipe derecho
             player.lane = Math.min(player.lane + 1, 2);
-        } else if (deltaX < -50) {
+            touchStartX = null; // Reset para evitar movimientos continuos
+        } else if (deltaX < -sensitivity) {
             // Swipe izquierdo
             player.lane = Math.max(player.lane - 1, 0);
+            touchStartX = null; // Reset
         }
     } else {
         // Movimiento vertical (salto)
-        if (deltaY < -50 && !player.isJumping) {
+        if (deltaY < -sensitivity && !player.isJumping) {
             player.velocityY = player.jumpForce;
             player.isJumping = true;
+            touchStartY = null; // Reset
         }
     }
-
-    touchStartX = null;
-    touchStartY = null;
 }
 
 function handleTouchEnd() {
@@ -110,6 +127,11 @@ function drawGoal() {
     // Opcional: ctx.drawImage(goalImg, goal.x, goal.y, goal.width, goal.height);
 }
 
+function drawObstacle(obstacle) {
+    ctx.fillStyle = 'red';
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+}
+
 function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -128,33 +150,5 @@ function update() {
     }
 
     // Movimiento de la meta hacia abajo
-    goal.y += goalSpeed;
-    if (goal.y > canvas.height + goal.height) {
-        goal.y = -200; // Resetear la posición de la meta
-        goal.x = lanes[Math.floor(Math.random() * lanes.length)]; // Cambiar de carril aleatoriamente
-    }
-
-    drawGoal();
-    drawPlayer();
-
-    // Detección de colisión con la meta
-    if (collisionDetection(player, goal)) {
-        messageContainer.style.display = 'block';
-        whatsappButton.addEventListener('click', () => {
-            const phoneNumber = '51906464923'; // Reemplaza con tu número
-            const message = encodeURIComponent('¡Te alcancé! Te extraño mucho y quiero que todo esté bien pronto. ❤️');
-            window.location.href = `https://wa.me/${phoneNumber}?text=${message}`;
-        });
-        return; // Detener el juego
-    }
-
-    requestAnimationFrame(update);
-}
-
-// Iniciar el juego cuando la imagen del dinosaurio esté cargada
-dinosaurImg.onload = update;
-if (goalImg.src) {
-    goalImg.onload = update;
-} else {
-    update();
-}
+    goal.y += goal.speed;
+    if (goal.y
