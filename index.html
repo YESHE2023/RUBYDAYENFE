@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para mi Amor</title>
+    <title>Una Aventura para Ti</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Mi corazón late solo por ti</h1>
-        <div id="heart-container">
-            </div>
-        <p id="message">Perdóname, mi amor. Eres todo para mí.</p>
+    <div class="game-container">
+        <h1>Una Aventura para Ti ❤️</h1>
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div id="message-container" style="display: none;">
+            <h2>¡Llegaste a la meta!</h2>
+            <button id="whatsapp-button">¡Dile que me extrañas!</button>
+        </div>
     </div>
-    <script src="script.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
