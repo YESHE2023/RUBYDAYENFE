@@ -3,68 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuenta Regresiva</title>
+    <title>Corazón Roto</title>
     <style>
         body {
-            font-family: sans-serif;
+            background-color: black;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f4f4f4;
         }
 
-        .container {
-            text-align: center;
-            padding: 30px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .corazon-roto {
+            font-size: 100px;
+            color: red;
+            animation: latido-roto 1s infinite alternate;
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        #countdown {
-            font-size: 2em;
-            color: #007bff;
-            font-weight: bold;
+        @keyframes latido-roto {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>De verdad está pasando?</h1>
-        <div id="countdown"></div>
-    </div>
-
-    <script>
-        function actualizarCuentaRegresiva() {
-            const ahora = new Date();
-            const manana = new Date(ahora);
-            manana.setDate(ahora.getDate() + 1);
-            manana.setHours(0, 0, 0, 0);
-
-            const diferencia = manana.getTime() - ahora.getTime();
-
-            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-            const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-            const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
-
-            document.getElementById('countdown').textContent = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-
-            if (diferencia > 0) {
-                setTimeout(actualizarCuentaRegresiva, 1000);
-            } else {
-                document.getElementById('countdown').textContent = "¡Mañana!";
-            }
-        }
-
-        actualizarCuentaRegresiva();
-    </script>
+    <div class="corazon-roto">💔</div>
 </body>
 </html>
