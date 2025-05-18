@@ -1,7 +1,7 @@
 body {
     font-family: sans-serif;
     margin: 0;
-    background-color: #f0f0f0;
+    background-color: #ffe6f2; /* Rosa pastel suave */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,30 +9,87 @@ body {
     text-align: center;
 }
 
-.game-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 95%; /* Para que no sea demasiado ancho en móviles */
+.container {
+    background-color: #fff0f5; /* Otro tono rosa pastel */
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-    color: #e91e63;
+    color: #e91e63; /* Rosa más intenso */
+    margin-bottom: 10px;
+}
+
+#start-date {
+    color: #777;
     margin-bottom: 20px;
+    font-style: italic;
+}
+
+#timer {
     font-size: 1.5em;
+    color: #ff69b4; /* Rosa brillante */
+    margin-bottom: 30px;
+    font-weight: bold;
 }
 
-#gameCanvas {
-    border: 2px solid #333;
-    background-color: #a7d9ed; /* Un cielo azul claro */
-    width: 100%; /* Ocupa todo el ancho del contenedor */
-    height: auto; /* La altura se ajusta proporcionalmente */
-    display: block; /* Evita espacios extra debajo del canvas */
+.heart-cylinder-container {
+    position: relative;
+    width: 150px;
+    height: 250px;
+    margin: 20px auto;
 }
 
-#message-container {
-    margin-top: 20px;
+#heart-cylinder {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    background: linear-gradient(#f7bdd7, #fbbad7); /* Degradado rosa para el cilindro */
+    border-radius: 10px 10px 0 0;
+    border: 2px solid #e18eca;
+    overflow: hidden;
+}
+
+.base {
+    position: absolute;
+    bottom: -20px;
+    left: -10px;
+    width: 120%;
+    height: 40px;
+    background-color: #e18eca; /* Base del cilindro */
+    border-radius: 50%;
+}
+
+#heart-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    overflow: hidden;
+}
+
+.falling-heart {
+    color: #ff4081; /* Rosa para los corazones */
+    font-size: 1.5em;
+    position: absolute;
+    animation: fall 5s linear infinite;
+    user-select: none;
+    opacity: 0; /* Inicialmente invisibles */
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-20px) translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(300px) translateX(20px); /* Ajusta la distancia de caída */
+        opacity: 0;
+    }
 }
 
 #whatsapp-button {
@@ -43,6 +100,7 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
     font-size: 1.1em;
+    margin-top: 20px;
 }
 
 #whatsapp-button:hover {
