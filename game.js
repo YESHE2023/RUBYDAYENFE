@@ -141,7 +141,7 @@ function update() {
     if (collisionDetection(player, goal)) {
         messageContainer.style.display = 'block';
         whatsappButton.addEventListener('click', () => {
-            const phoneNumber = '52906464923'; // Reemplaza con tu número
+            const phoneNumber = '51906464923'; // Reemplaza con tu número
             const message = encodeURIComponent('¡Te alcancé! Te extraño mucho y quiero que todo esté bien pronto. ❤️');
             window.location.href = `https://wa.me/${phoneNumber}?text=${message}`;
         });
