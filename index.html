@@ -2,29 +2,33 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuestro Tiempo Juntos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>¿Me Perdonas?</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Nuestro Amor Florece Desde:</h1>
-        <div id="start-date">29 de Abril de 2022 - 00:00</div>
-        <div id="timer">
-            <span id="years">0</span> Años,
-            <span id="months">0</span> Meses,
-            <span id="days">0</span> Días,
-            <span id="hours">0</span> Horas,
-            <span id="minutes">0</span> Minutos,
-            <span id="seconds">0</span> Segundos
-        </div>
-        <div class="heart-container-wrapper">
-            <div id="heart-shape">
-                <div id="filling-hearts"></div>
+    <div class="background">
+        <div id="falling-hearts"></div>
+        <div class="timer-container">
+            <h1>Nuestro Amor Florece Desde:</h1>
+            <div id="start-date">29 de Abril de 2022 - 00:00</div>
+            <div id="timer">
+                <span id="years">0</span> Años,
+                <span id="months">0</span> Meses,
+                <span id="days">0</span> Días,
+                <span id="hours">0</span> Horas,
+                <span id="minutes">0</span> Minutos,
+                <span id="seconds">0</span> Segundos
             </div>
-            <div id="falling-hearts"></div>
         </div>
-        <button id="whatsapp-button" style="display: none;">¡Mi corazón está lleno!</button>
+        <div class="question-container">
+            <h2>¿Me perdonas, mi amor?</h2>
+            <div class="buttons">
+                <button id="yes-button">Sí</button>
+                <button id="no-button">No</button>
+            </div>
+            <p id="response" style="display: none; color: white;">❤️</p>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
