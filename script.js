@@ -66,7 +66,7 @@ yesButton.addEventListener('mouseover', moveYesButton); // Para PC
 yesButton.addEventListener('touchstart', moveYesButton); // Para táctil
 
 yesButton.addEventListener('click', () => {
-    const phoneNumber = 'TU_NUMERO_DE_TELEFONO'; // Reemplaza con tu número
+    const phoneNumber = '51906464923'; // Reemplaza con tu número
     const message = encodeURIComponent('¡Sí! Quiero que todo esté bien cuanto antes. Te extraño mucho. ❤️');
     window.location.href = `https://wa.me/${phoneNumber}?text=${message}`;
 });
