@@ -1,4 +1,4 @@
-const startDate = new Date('2022-04-29T00:00:00');
+const startDate = new Date('2022/04/29 00:00:00'); // Formato de fecha alternativo
 const yearsSpan = document.getElementById('years');
 const monthsSpan = document.getElementById('months');
 const daysSpan = document.getElementById('days');
@@ -16,12 +16,18 @@ function updateTimer() {
     const now = new Date();
     const difference = now.getTime() - startDate.getTime();
 
-    const years = Math.floor(difference / (1000 * 60 * 60 * 24 * 365.25));
-    const months = Math.floor((difference % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24 * 30.44));
-    const days = Math.floor((difference % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    const secondsTotal = Math.floor(difference / 1000);
+    const minutesTotal = Math.floor(secondsTotal / 60);
+    const hoursTotal = Math.floor(minutesTotal / 60);
+    const daysTotal = Math.floor(hoursTotal / 24);
+
+    const years = Math.floor(daysTotal / 365.25);
+    const remainingDays = Math.floor(daysTotal % 365.25);
+    const months = Math.floor(remainingDays / 30.44);
+    const days = Math.floor(remainingDays % 30.44);
+    const hours = Math.floor(hoursTotal % 24);
+    const minutes = Math.floor(minutesTotal % 60);
+    const seconds = Math.floor(secondsTotal % 60);
 
     yearsSpan.textContent = years;
     monthsSpan.textContent = months;
@@ -55,3 +61,6 @@ function createFallingHeart() {
 
 setInterval(updateTimer, 1000); // Actualizar el contador cada segundo
 setInterval(createFallingHeart, 500); // Crear un corazón cayendo cada medio segundo
+
+// Llama a updateTimer una vez al inicio para mostrar los valores inmediatamente
+updateTimer();
