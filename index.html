@@ -2,19 +2,30 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Una Aventura para Ti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Tiempo Juntos</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1>Una Aventura para Ti ❤️</h1>
-        <canvas id="gameCanvas" width="400" height="600"></canvas>
-        <div id="message-container" style="display: none;">
-            <h2>¡Llegaste a la meta!</h2>
-            <button id="whatsapp-button">¡Dile que me extrañas!</button>
+    <div class="container">
+        <h1>Nuestro Amor Florece Desde:</h1>
+        <div id="start-date">29 de Abril de 2022 - 00:00</div>
+        <div id="timer">
+            <span id="years">0</span> Años,
+            <span id="months">0</span> Meses,
+            <span id="days">0</span> Días,
+            <span id="hours">0</span> Horas,
+            <span id="minutes">0</span> Minutos,
+            <span id="seconds">0</span> Segundos
         </div>
+        <div class="heart-cylinder-container">
+            <div id="heart-cylinder">
+                <div class="base"></div>
+            </div>
+            <div id="heart-container"></div>
+        </div>
+        <button id="whatsapp-button" style="display: none;">¡Mi corazón está lleno!</button>
     </div>
-    <script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
