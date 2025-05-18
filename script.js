@@ -6,13 +6,9 @@ const hoursSpan = document.getElementById('hours');
 const minutesSpan = document.getElementById('minutes');
 const secondsSpan = document.getElementById('seconds');
 const fallingHeartsContainer = document.getElementById('falling-hearts');
-const fillingHearts = document.getElementById('filling-hearts');
-const whatsappButton = document.getElementById('whatsapp-button');
-const heartShape = document.getElementById('heart-shape');
-
-let heartCount = 0;
-const maxHearts = 50; // Ajusta la cantidad para "llenar" el corazón
-let fillPercentage = 0;
+const yesButton = document.getElementById('yes-button');
+const noButton = document.getElementById('no-button');
+const responseText = document.getElementById('response');
 
 function updateTimer() {
     const now = new Date();
@@ -40,33 +36,46 @@ function updateTimer() {
 }
 
 function createFallingHeart() {
-    if (heartCount < maxHearts) {
-        const heart = document.createElement('div');
-        heart.classList.add('falling-heart');
-        heart.innerHTML = '💖'; // Un corazón brillante
-        heart.style.left = `${Math.random() * 100}%`;
-        heart.style.animationDuration = `${Math.random() * 2 + 1}s`; // Duración aleatoria
-        heart.style.animationDelay = `${Math.random() * 1}s`; // Retraso aleatorio
-        fallingHeartsContainer.appendChild(heart);
-        heartCount++;
+    const heart = document.createElement('div');
+    heart.classList.add('falling-heart');
+    heart.innerHTML = '💖';
+    const randomX = Math.random() * 100;
+    heart.style.setProperty('--random-x', `${randomX}vw`);
+    heart.style.left = `${randomX}vw`;
+    heart.style.animationDuration = `${Math.random() * 3 + 2}s`;
+    heart.style.animationDelay = `${Math.random() * 2}s`;
+    fallingHeartsContainer.appendChild(heart);
 
-        // Actualizar el porcentaje de llenado del corazón
-        fillPercentage = (heartCount / maxHearts) * 100;
-        fillingHearts.style.height = `${fillPercentage}%`;
-
-        if (heartCount >= maxHearts) {
-            whatsappButton.style.display = 'block';
-            whatsappButton.addEventListener('click', () => {
-                const phoneNumber = '51906464923'; // Reemplaza con tu número
-                const message = encodeURIComponent('¡Mi corazón está completamente lleno de nuestro amor! Te extraño mucho y quiero que todo esté bien pronto. ❤️');
-                window.location.href = `https://wa.me/${phoneNumber}?text=${message}`;
-            });
-        }
-    }
+    // Eliminar el corazón después de que termine la animación para evitar sobrecargar el DOM
+    heart.addEventListener('animationiteration', () => {
+        heart.remove();
+    });
 }
 
-setInterval(updateTimer, 1000); // Actualizar el contador cada segundo
-setInterval(createFallingHeart, 300); // Crear corazones cayendo más rápido para llenar el corazón
+function moveYesButton() {
+    const maxX = window.innerWidth - yesButton.offsetWidth;
+    const maxY = window.innerHeight - yesButton.offsetHeight;
+    const newX = Math.random() * maxX;
+    const newY = Math.random() * maxY;
+    yesButton.style.position = 'absolute';
+    yesButton.style.left = `${newX}px`;
+    yesButton.style.top = `${newY}px`;
+}
 
-// Llama a updateTimer una vez al inicio
-updateTimer();
+yesButton.addEventListener('mouseover', moveYesButton); // Para PC
+yesButton.addEventListener('touchstart', moveYesButton); // Para táctil
+
+yesButton.addEventListener('click', () => {
+    const phoneNumber = 'TU_NUMERO_DE_TELEFONO'; // Reemplaza con tu número
+    const message = encodeURIComponent('¡Sí! Quiero que todo esté bien cuanto antes. Te extraño mucho. ❤️');
+    window.location.href = `https://wa.me/${phoneNumber}?text=${message}`;
+});
+
+noButton.addEventListener('click', () => {
+    responseText.textContent = '😔';
+    responseText.style.display = 'block';
+});
+
+setInterval(updateTimer, 1000);
+setInterval(createFallingHeart, 200); // Más corazones cayendo
+updateTimer(); // Llamada inicial
