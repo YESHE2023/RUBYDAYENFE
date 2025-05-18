@@ -3,37 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corazón Roto</title>
-    <style>
-        body {
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .corazon-roto {
-            font-size: 100px;
-            color: red;
-            animation: latido-roto 1s infinite alternate;
-        }
-
-        @keyframes latido-roto {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(0.9);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-    </style>
+    <title>Para mi Amor</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="corazon-roto">💔</div>
+    <div class="container">
+        <h1>Mi corazón late solo por ti</h1>
+        <div id="heart-container">
+            </div>
+        <p id="message">Perdóname, mi amor. Eres todo para mí.</p>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
