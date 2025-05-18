@@ -11,19 +11,24 @@ body {
 
 .game-container {
     background-color: #fff;
-    padding: 30px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 95%; /* Para que no sea demasiado ancho en móviles */
 }
 
 h1 {
     color: #e91e63;
     margin-bottom: 20px;
+    font-size: 1.5em;
 }
 
 #gameCanvas {
     border: 2px solid #333;
     background-color: #a7d9ed; /* Un cielo azul claro */
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    height: auto; /* La altura se ajusta proporcionalmente */
+    display: block; /* Evita espacios extra debajo del canvas */
 }
 
 #message-container {
