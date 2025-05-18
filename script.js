@@ -46,7 +46,6 @@ function createFallingHeart() {
     heart.style.animationDelay = `${Math.random() * 2}s`;
     fallingHeartsContainer.appendChild(heart);
 
-    // Eliminar el corazón después de que termine la animación para evitar sobrecargar el DOM
     heart.addEventListener('animationiteration', () => {
         heart.remove();
     });
