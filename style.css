@@ -1,7 +1,8 @@
 body {
     font-family: sans-serif;
     margin: 0;
-    background-color: #ffe6f2; /* Rosa pastel suave */
+    background-color: black; /* Fondo negro */
+    overflow: hidden; /* Ocultar los corazones que caen fuera de la pantalla */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,98 +10,110 @@ body {
     text-align: center;
 }
 
-.container {
-    background-color: #fff0f5; /* Otro tono rosa pastel */
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-    color: #e91e63; /* Rosa más intenso */
-    margin-bottom: 10px;
-}
-
-#start-date {
-    color: #777;
-    margin-bottom: 20px;
-    font-style: italic;
-}
-
-#timer {
-    font-size: 1.5em;
-    color: #ff69b4; /* Rosa brillante */
-    margin-bottom: 30px;
-    font-weight: bold;
-}
-
-.heart-container-wrapper {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    margin: 20px auto;
-}
-
-#heart-shape {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #ff4081; /* Color del corazón */
-    -webkit-mask: url('heart.svg') center/contain no-repeat;
-    mask: url('heart.svg') center/contain no-repeat;
-    overflow: hidden;
-}
-
-#filling-hearts {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0%;
-    background-color: #ff80ab; /* Tono más claro para el llenado */
-    transition: height 0.5s ease-out; /* Animación suave del llenado */
-}
-
-#falling-hearts {
-    position: absolute;
+.background {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+}
+
+#falling-hearts {
+    position: absolute;
+    top: -50px; /* Empezar desde arriba */
+    left: 0;
+    width: 100%;
+    height: 120%; /* Para que cubra toda la pantalla */
     overflow: hidden;
 }
 
 .falling-heart {
-    color: #e91e63; /* Rosa más intenso para los corazones que caen */
-    font-size: 1.2em;
+    color: #ff4081; /* Rosa para los corazones */
+    font-size: 1.5em;
     position: absolute;
-    animation: fall 3s linear infinite;
+    animation: fall 5s linear infinite;
     user-select: none;
-    opacity: 0; /* Inicialmente invisibles */
+    opacity: 0.7;
 }
 
 @keyframes fall {
     0% {
-        transform: translateY(-20px) translateX(0);
-        opacity: 1;
+        transform: translateY(0) translateX(var(--random-x));
+        opacity: 0.7;
     }
     100% {
-        transform: translateY(180px) translateX(20px); /* Ajusta la distancia de caída */
-        opacity: 0;
+        transform: translateY(120vh) translateX(var(--random-x));
+        opacity: 0.7;
     }
 }
 
-#whatsapp-button {
-    background-color: #25d366; /* Color de WhatsApp */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-    margin-top: 20px;
+.timer-container {
+    background-color: #fff0f5; /* Cuadrito rosa pastel */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    z-index: 10; /* Asegurar que esté sobre los corazones */
 }
 
-#whatsapp-button:hover {
-    background-color: #128c7e;
+h1 {
+    color: #e91e63;
+    margin-bottom: 5px;
+    font-size: 1.2em;
+}
+
+#start-date {
+    color: #777;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+#timer {
+    font-size: 1.3em;
+    color: #ff69b4;
+    font-weight: bold;
+}
+
+.question-container {
+    background-color: #fff0f5; /* Otro cuadrito rosa pastel */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 10; /* Asegurar que esté sobre los corazones */
+}
+
+h2 {
+    color: #e91e63;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#yes-button {
+    background-color: #d8b4fe; /* Un tono de morado pastel */
+    color: white;
+}
+
+#no-button {
+    background-color: #f48fb1; /* Otro tono de rosa pastel */
+    color: white;
+}
+
+#response {
+    margin-top: 20px;
+    font-size: 2em;
 }
