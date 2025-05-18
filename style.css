@@ -34,49 +34,47 @@ h1 {
     font-weight: bold;
 }
 
-.heart-cylinder-container {
+.heart-container-wrapper {
     position: relative;
     width: 150px;
-    height: 250px;
+    height: 150px;
     margin: 20px auto;
 }
 
-#heart-cylinder {
+#heart-shape {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #ff4081; /* Color del corazón */
+    -webkit-mask: url('heart.svg') center/contain no-repeat;
+    mask: url('heart.svg') center/contain no-repeat;
+    overflow: hidden;
+}
+
+#filling-hearts {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 80%;
-    background: linear-gradient(#f7bdd7, #fbbad7); /* Degradado rosa para el cilindro */
-    border-radius: 10px 10px 0 0;
-    border: 2px solid #e18eca;
-    overflow: hidden;
+    height: 0%;
+    background-color: #ff80ab; /* Tono más claro para el llenado */
+    transition: height 0.5s ease-out; /* Animación suave del llenado */
 }
 
-.base {
-    position: absolute;
-    bottom: -20px;
-    left: -10px;
-    width: 120%;
-    height: 40px;
-    background-color: #e18eca; /* Base del cilindro */
-    border-radius: 50%;
-}
-
-#heart-container {
+#falling-hearts {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 80%;
+    height: 100%;
     overflow: hidden;
 }
 
 .falling-heart {
-    color: #ff4081; /* Rosa para los corazones */
-    font-size: 1.5em;
+    color: #e91e63; /* Rosa más intenso para los corazones que caen */
+    font-size: 1.2em;
     position: absolute;
-    animation: fall 5s linear infinite;
+    animation: fall 3s linear infinite;
     user-select: none;
     opacity: 0; /* Inicialmente invisibles */
 }
@@ -87,7 +85,7 @@ h1 {
         opacity: 1;
     }
     100% {
-        transform: translateY(300px) translateX(20px); /* Ajusta la distancia de caída */
+        transform: translateY(180px) translateX(20px); /* Ajusta la distancia de caída */
         opacity: 0;
     }
 }
