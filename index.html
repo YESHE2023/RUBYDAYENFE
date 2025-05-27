@@ -2,34 +2,157 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>¿Me Perdonas?</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Amor</title>
+    <style>
+        /* --- Estilos Generales --- */
+        body {
+            background-color: #1a1a1a; /* Un negro un poco más suave */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Evita que aparezcan barras de scroll por los corazones */
+        }
+
+        /* --- Contenedor principal para centrar la caja --- */
+        .container {
+            display: flex;
+            justify-content: center;
+            padding-top: 10vh; /* Espacio desde la parte superior */
+        }
+
+        /* --- La caja rosa del contador --- */
+        .love-counter {
+            background-color: #FFF0F5; /* Un rosa pálido (Lavender Blush) */
+            color: #333;
+            padding: 25px 45px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 105, 180, 0.7); /* Sombra rosa para un efecto de brillo */
+            border: 2px solid white;
+            z-index: 10;
+            position: relative;
+        }
+
+        /* --- Textos dentro de la caja --- */
+        .love-counter h1 {
+            color: #d63384; /* Rosa más intenso */
+            margin: 0 0 5px 0;
+            font-size: 1.8em;
+        }
+
+        .love-counter p {
+            margin: 0;
+            font-size: 1em;
+            color: #555;
+        }
+
+        #timer {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        /* --- Animación de los Corazones --- */
+        .heart {
+            position: absolute;
+            bottom: -50px; /* Empieza fuera de la pantalla */
+            font-size: 2rem;
+            color: hotpink;
+            animation: floatHeart 10s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120vh) rotate(720deg); /* Sube y gira */
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="background">
-        <div id="falling-hearts"></div>
-        <div class="timer-container">
-            <h1>Nuestro Amor Florece Desde:</h1>
-            <div id="start-date">29 de Abril de 2022 - 00:00</div>
-            <div id="timer">
-                <span id="years">0</span> Años,
-                <span id="months">0</span> Meses,
-                <span id="days">0</span> Días,
-                <span id="hours">0</span> Horas,
-                <span id="minutes">0</span> Minutos,
-                <span id="seconds">0</span> Segundos
-            </div>
-        </div>
-        <div class="question-container">
-            <h2>¿Me perdonas, mi amor?</h2>
-            <div class="buttons">
-                <button id="yes-button">Sí</button>
-                <button id="no-button">No</button>
-            </div>
-            <p id="response" style="display: none; color: white;">❤️</p>
+
+    <div class="container">
+        <div class="love-counter">
+            <h1>Nuestro Amor Florece Desde</h1>
+            <p id="start-date-display"></p>
+            <div id="timer">Cargando...</div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // --- CONFIGURACIÓN IMPORTANTE ---
+        // ¡CAMBIA ESTA FECHA POR LA FECHA DE INICIO DE SU RELACIÓN!
+        // Formato: AÑO-MES-DÍA T HORA:MINUTO:SEGUNDO (Ej: '2022-04-29T00:00:00')
+        const startDate = new Date('2022-04-29T00:00:00');
+
+        // --- Lógica del Contador (No necesitas cambiar esto) ---
+        const timerElement = document.getElementById('timer');
+        const startDateElement = document.getElementById('start-date-display');
+        
+        // Formatear y mostrar la fecha de inicio
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        startDateElement.textContent = startDate.toLocaleDateString('es-ES', options);
+
+        function updateTimer() {
+            const now = new Date();
+            let diff = now - startDate;
+
+            // Cálculos para años, meses, días, etc.
+            let years = now.getFullYear() - startDate.getFullYear();
+            let months = now.getMonth() - startDate.getMonth();
+            let days = now.getDate() - startDate.getDate();
+            
+            let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // Ajuste para meses y años cuando los días/meses son negativos
+            if (days < 0) {
+                months--;
+                // new Date(año, mes, 0).getDate() nos da el último día del mes anterior
+                days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            timerElement.innerHTML = `
+                ${years} Años, ${months} Meses, ${days} Días<br>
+                ${hours} Horas, ${minutes} Minutos, ${seconds} Segundos
+            `;
+        }
+
+        // --- Lógica de los Corazones (No necesitas cambiar esto) ---
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '💖';
+            
+            // Posición horizontal y duración de animación aleatorias
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 5 + 5) + 's'; // entre 5 y 10 segundos
+            
+            document.body.appendChild(heart);
+            
+            // Eliminar el corazón cuando la animación termina para no sobrecargar la página
+            setTimeout(() => {
+                heart.remove();
+            }, 10000);
+        }
+
+        // Iniciar los procesos
+        setInterval(updateTimer, 1000);
+        setInterval(createHeart, 400); // Crea un corazón cada 400 milisegundos
+        updateTimer(); // Llama a la función una vez al cargar para que no se vea el "Cargando..."
+    </script>
+
 </body>
 </html>
