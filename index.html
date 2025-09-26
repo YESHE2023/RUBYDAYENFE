@@ -88,12 +88,10 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN IMPORTANTE ---
-        // ¡CAMBIA ESTA FECHA POR LA FECHA DE INICIO DE SU RELACIÓN!
-        // Formato: AÑO-MES-DÍA T HORA:MINUTO:SEGUNDO (Ej: '2022-04-29T00:00:00')
+        // Formato: AÑO-MES-DÍA T HORA:MINUTO:SEGUNDO
         const startDate = new Date('2022-04-29T00:00:00');
 
-        // --- Lógica del Contador (No necesitas cambiar esto) ---
+        // --- Lógica del Contador ---
         const timerElement = document.getElementById('timer');
         const startDateElement = document.getElementById('start-date-display');
         
@@ -114,7 +112,7 @@
             let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             let seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // Ajuste para meses y años cuando los días/meses son negativos
+            // Ajuste para meses y años cuando son negativos
             if (days < 0) {
                 months--;
                 // new Date(año, mes, 0).getDate() nos da el último día del mes anterior
@@ -131,7 +129,7 @@
             `;
         }
 
-        // --- Lógica de los Corazones (No necesitas cambiar esto) ---
+        // --- Lógica de los Corazones ---
         function createHeart() {
             const heart = document.createElement('div');
             heart.classList.add('heart');
