@@ -3,155 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://i.pinimg.com/736x/b3/66/a7/b366a779db1cd096058da50a0026b663.jpg" type="image/jng">
-    <title>Ruby ❤️</title>
-    <style>
-        /* --- Estilos Generales --- */
-        body {
-            background-color: #000000; /* Un negro un poco más suave */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Evita que aparezcan barras de scroll por los corazones */
-        }
-
-        /* --- Contenedor principal para centrar la caja --- */
-        .container {
-            display: flex;
-            justify-content: center;
-            padding-top: 10vh; /* Espacio desde la parte superior */
-        }
-
-        /* --- La caja rosa del contador --- */
-        .love-counter {
-            background-color: #FFF0F5; /* Un rosa pálido (Lavender Blush) */
-            color: #333;
-            padding: 25px 45px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 0 25px rgba(255, 105, 180, 0.7); /* Sombra rosa para un efecto de brillo */
-            border: 2px solid white;
-            z-index: 10;
-            position: relative;
-        }
-
-        /* --- Textos dentro de la caja --- */
-        .love-counter h1 {
-            color: #d63384; /* Rosa más intenso */
-            margin: 0 0 5px 0;
-            font-size: 1.8em;
-        }
-
-        .love-counter p {
-            margin: 0;
-            font-size: 1em;
-            color: #555;
-        }
-
-        #timer {
-            font-size: 2.2em;
-            font-weight: bold;
-            color: #333;
-            margin-top: 10px;
-        }
-
-        /* --- Animación de los Corazones --- */
-        .heart {
-            position: absolute;
-            bottom: -50px; /* Empieza fuera de la pantalla */
-            font-size: 2rem;
-            color: hotpink;
-            animation: floatHeart 10s linear infinite;
-            z-index: 1;
-        }
-
-        @keyframes floatHeart {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-120vh) rotate(720deg); /* Sube y gira */
-                opacity: 0;
-            }
-        }
-    </style>
+    <title>Mochila Táctica "Aura" - S/ 60.00</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <header>
+        <h1>🎒 Mochila Táctica "Aura"</h1>
+        <p>Perfecta para el Campo y la Ciudad | Envíos a todo el Perú 🇵🇪</p>
+    </header>
 
-    <div class="container">
-        <div class="love-counter">
-            <h1>Nuestro Amor Florece Desde</h1>
-            <p id="start-date-display"></p>
-            <div id="timer">Cargando...</div>
-        </div>
-    </div>
-
-    <script>
-        // Formato: AÑO-MES-DÍA T HORA:MINUTO:SEGUNDO
-        const startDate = new Date('2022-04-29T00:00:00');
-
-        // --- Lógica del Contador ---
-        const timerElement = document.getElementById('timer');
-        const startDateElement = document.getElementById('start-date-display');
+    <main>
+        <section class="product-info">
+            <div class="product-image">
+                
+            </div>
+            <div class="product-details">
+                <h2>Precio Imbatible: <span class="price">S/ 60.00</span></h2>
+                
+                <div class="buy-buttons">
+                    <h3>🚀 ¡Haz tu Pedido Ahora!</h3>
+                    <a href="#checkout" class="btn whatsapp-btn">
+                        <i class="fab fa-whatsapp"></i> ¡Comprar por WhatsApp! 📲
+                    </a>
+                    <a href="#checkout" class="btn visa-btn">
+                        <i class="fab fa-cc-visa"></i> Pagar con VISA 💳
+                    </a>
+                    <a href="#checkout" class="btn cash-btn">
+                        <i class="fas fa-money-bill-wave"></i> Pagar en Efectivo 💵
+                    </a>
+                    <a href="#checkout" class="btn crypto-btn">
+                        <i class="fab fa-btc"></i> Pagar con Criptomonedas ₿
+                    </a>
+                    <p class="note">⚠️ Estos botones son ficticios y no funcionan en esta maqueta.</p>
+                </div>
+            </div>
+        </section>
         
-        // Formatear y mostrar la fecha de inicio
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        startDateElement.textContent = startDate.toLocaleDateString('es-ES', options);
+        <section id="checkout" class="checkout-section">
+            <h2>🛒 Finaliza tu Compra (Checkout Ficticio)</h2>
+            <form class="checkout-form">
+                <div class="form-group">
+                    <label for="name">Nombre Completo:</label>
+                    <input type="text" id="name" placeholder="Ej: Juan Pérez" required disabled>
+                </div>
+                <div class="form-group">
+                    <label for="address">Dirección de Envío Nacional:</label>
+                    <input type="text" id="address" placeholder="Ej: Av. Perú 123, Lima" required disabled>
+                </div>
+                <div class="form-group">
+                    <label for="payment">Método de Pago Seleccionado:</label>
+                    <select id="payment" disabled>
+                        <option>VISA / Tarjeta de Crédito</option>
+                        <option>Pago en Efectivo</option>
+                        <option>Criptomonedas (BTC/ETH)</option>
+                    </select>
+                </div>
+                <div class="summary">
+                    <p>Mochila Aura (x1): S/ 60.00</p>
+                    <p>Envío Nacional: S/ 0.00 (Promoción)</p>
+                    <h3>Total a Pagar: S/ 60.00</h3>
+                </div>
+                <button type="submit" class="btn checkout-btn" disabled>CONFIRMAR PEDIDO (Ficticio)</button>
+            </form>
+            <p class="note">Esta sección simula el proceso de pago. El formulario no enviará datos.</p>
+        </section>
+        
+        <section class="features">
+            <h2>✨ Características Esenciales</h2>
+            <div class="features-grid">
+                <div>
+                    <i class="fas fa-ruler-combined"></i>
+                    <h3>Tamaño Amplio</h3>
+                    <p>Gran capacidad, perfecta para estudios y equipo de viaje.</p>
+                </div>
+                <div>
+                    <i class="fas fa-laptop"></i>
+                    <h3>Porta Laptop</h3>
+                    <p>Compartimento acolchado para proteger tu equipo.</p>
+                </div>
+                <div>
+                    <i class="fas fa-palette"></i>
+                    <h3>Variedad de Colores</h3>
+                    <p>Disponible en Negro Táctico, Azul, Verde y Gris.</p>
+                </div>
+                <div>
+                    <i class="fas fa-weight-hanging"></i>
+                    <h3>Distribución de Peso</h3>
+                    <p>Diseño que reduce la fatiga en largas jornadas.</p>
+                </div>
+                <div>
+                    <i class="fas fa-hand-holding"></i>
+                    <h3>Ergonómica</h3>
+                    <p>Correas y respaldo transpirables para máximo confort.</p>
+                </div>
+            </div>
+        </section>
 
-        function updateTimer() {
-            const now = new Date();
-            let diff = now - startDate;
+        <section class="unique-features">
+            <h2>🔒 Lo que la Hace Única</h2>
+            <ul>
+                <li><i class="fas fa-user-lock"></i> **Sistema Antirrobo:** Cremalleras y cierres ocultos para mayor seguridad.</li>
+                <li><i class="fas fa-shield-alt"></i> **Seguro para Cintura:** Correa de sujeción para estabilizar la carga en movimiento.</li>
+                <li><i class="fas fa-eye-slash"></i> **Bolsillos Secretos:** Almacenamiento discreto para objetos de valor.</li>
+                <li><i class="fas fa-battery-full"></i> **Cargador Portátil Ready:** Puerto USB externo (requiere tu power bank).</li>
+                <li><i class="fas fa-headphones"></i> **Salida para Auriculares:** Escucha música con el celular seguro dentro.</li>
+            </ul>
+        </section>
 
-            // Cálculos para años, meses, días, etc.
-            let years = now.getFullYear() - startDate.getFullYear();
-            let months = now.getMonth() - startDate.getMonth();
-            let days = now.getDate() - startDate.getDate();
-            
-            let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    </main>
 
-            // Ajuste para meses y años cuando son negativos
-            if (days < 0) {
-                months--;
-                // new Date(año, mes, 0).getDate() nos da el último día del mes anterior
-                days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-            }
-            if (months < 0) {
-                years--;
-                months += 12;
-            }
-
-            timerElement.innerHTML = `
-                ${years} Años, ${months} Meses, ${days} Días<br>
-                ${hours} Horas, ${minutes} Minutos, ${seconds} Segundos
-            `;
-        }
-
-        // --- Lógica de los Corazones ---
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.innerHTML = '💖';
-            
-            // Posición horizontal y duración de animación aleatorias
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = (Math.random() * 5 + 5) + 's'; // entre 5 y 10 segundos
-            
-            document.body.appendChild(heart);
-            
-            // Eliminar el corazón cuando la animación termina para no sobrecargar la página
-            setTimeout(() => {
-                heart.remove();
-            }, 10000);
-        }
-
-        // Iniciar los procesos
-        setInterval(updateTimer, 1000);
-        setInterval(createHeart, 400); // Crea un corazón cada 400 milisegundos
-        updateTimer(); // Llama a la función una vez al cargar para que no se vea el "Cargando..."
-    </script>
-
+    <footer>
+        <p>&copy; 2025 Mochila "Aura". Envíos Nacionales Perú.</p>
+    </footer>
 </body>
 </html>
