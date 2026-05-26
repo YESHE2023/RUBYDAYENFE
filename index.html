@@ -3,123 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mochila Táctica "Aura" - S/ 60.00</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Centro de Control - Flota</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #mapa { width: 100vw; height: 100vh; }
+        
+        /* Diseño del popup sobre el vehículo */
+        .info-vehiculo { font-size: 14px; }
+        .info-vehiculo strong { color: #d32f2f; }
+        
+        /* Diseño del marcador estático con la placa */
+        .etiqueta-placa {
+            background-color: #1a237e;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            border: 1px solid white;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>🎒 Mochila Táctica "Aura"</h1>
-        <p>Perfecta para el Campo y la Ciudad | Envíos a todo el Perú 🇵🇪</p>
-    </header>
 
-    <main>
-        <section class="product-info">
-           <div class="product-image">
-    <img src="w=1500,h=1500,fit=pad.webp" alt="Mochila Táctica Aura con todas sus características" style="width: 100%;">
-</div>
+    <div id="mapa"></div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
-            <div class="product-details">
-                <h2>Precio Imbatible: <span class="price">S/ 60.00</span></h2>
-                
-                <div class="buy-buttons">
-                    <h3>🚀 ¡Haz tu Pedido Ahora!</h3>
-                    <a href="https://wa.me/51906464923?text=Quiero%20la%20Mochila%20Aura%20S%2F60" target="_blank" class="btn whatsapp-btn">
-    <i class="fab fa-whatsapp"></i> ¡Comprar por WhatsApp! 📲
-</a>
+        // ⚠️ ATENCIÓN: Debes reemplazar esto con tus llaves reales
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY_AQUI",
+            authDomain: "vngapoyo.firebaseapp.com",
+            databaseURL: "https://vngapoyo-default-rtdb.firebaseio.com",
+            projectId: "vngapoyo",
+        };
 
-                    <a href="#checkout" class="btn visa-btn">
-                        <i class="fab fa-cc-visa"></i> Pagar con VISA 💳
-                    </a>
-                    <a href="#checkout" class="btn cash-btn">
-                        <i class="fas fa-money-bill-wave"></i> Pagar en Efectivo 💵 (contra entrega)
-                    </a>
-                    <a href="https://lemon.me/peru/" target="_blank" class="btn crypto-btn">
-    <i class="fab fa-btc"></i> Pagar con Criptomonedas ₿
-</a>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-                    <p class="note">⚠️ Ultimas unidades.</p>
-                </div>
-            </div>
-        </section>
+        // Inicializar el mapa centrado en un punto base (Ej. Lima, Perú)
+        const mapa = L.map('mapa').setView([-12.046374, -77.042793], 13);
         
-        <section id="checkout" class="checkout-section">
-            <h2>🛒 Finaliza tu Compra Checkout Ficticio</h2>
-            <form class="checkout-form">
-                <div class="form-group">
-                    <label for="name">Nombre Completo:</label>
-                    <input type="text" id="name" placeholder="Ej: Juan Pérez" required disabled>
-                </div>
-                <div class="form-group">
-                    <label for="address">Dirección de Envío Nacional:</label>
-                    <input type="text" id="address" placeholder="Ej: Av. Perú 123, Lima" required disabled>
-                </div>
-                <div class="form-group">
-                    <label for="payment">Método de Pago Seleccionado:</label>
-                    <select id="payment" disabled>
-                        <option>VISA / Tarjeta de Crédito</option>
-                        <option>Pago en Efectivo</option>
-                        <option>Criptomonedas (BTC/ETH)</option>
-                    </select>
-                </div>
-                <div class="summary">
-                    <p>Mochila Aura (x1): S/ 60.00</p>
-                    <p>Envío Nacional: S/ 0.00 (Promoción)</p>
-                    <h3>Total a Pagar: S/ 60.00</h3>
-                </div>
-                <button type="submit" class="btn checkout-btn" disabled>CONFIRMAR PEDIDO</button>
-            </form>
-            <p class="note">Esta sección simula el proceso de pago. El formulario no enviará datos.</p>
-        </section>
-        
-        <section class="features">
-            <h2>✨ Características Esenciales</h2>
-            <div class="features-grid">
-                <div>
-                    <i class="fas fa-ruler-combined"></i>
-                    <h3>Tamaño Amplio</h3>
-                    <p>Gran capacidad, perfecta para estudios y equipo de viaje.</p>
-                </div>
-                <div>
-                    <i class="fas fa-laptop"></i>
-                    <h3>Porta Laptop</h3>
-                    <p>Compartimento acolchado para proteger tu equipo.</p>
-                </div>
-                <div>
-                    <i class="fas fa-palette"></i>
-                    <h3>Variedad de Colores</h3>
-                    <p>Disponible en Negro Táctico, Azul, Verde y Gris.</p>
-                </div>
-                <div>
-                    <i class="fas fa-weight-hanging"></i>
-                    <h3>Distribución de Peso</h3>
-                    <p>Diseño que reduce la fatiga en largas jornadas.</p>
-                </div>
-                <div>
-                    <i class="fas fa-hand-holding"></i>
-                    <h3>Ergonómica</h3>
-                    <p>Correas y respaldo transpirables para máximo confort.</p>
-                </div>
-            </div>
-        </section>
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(mapa);
 
-        <section class="unique-features">
-            <h2>🔒 Lo que la Hace Única</h2>
-            <ul>
-                <li><i class="fas fa-user-lock"></i> **Sistema Antirrobo:** Cremalleras y cierres ocultos para mayor seguridad.</li>
-                <li><i class="fas fa-shield-alt"></i> **Seguro para Cintura:** Correa de sujeción para estabilizar la carga en movimiento.</li>
-                <li><i class="fas fa-eye-slash"></i> **Bolsillos Secretos:** Almacenamiento discreto para objetos de valor.</li>
-                <li><i class="fas fa-battery-full"></i> **Cargador Portátil Ready:** Puerto USB externo.</li>
-                <li><i class="fas fa-headphones"></i> **Salida para Auriculares:** Escucha música con el celular seguro dentro.</li>
-            </ul>
-        </section>
+        // Diccionario para almacenar los marcadores y no duplicarlos
+        let marcadores = {};
 
-    </main>
+        // Escuchar cambios en tiempo real en la base de datos
+        const flotaRef = ref(db, 'flota_activa');
+        onValue(flotaRef, (snapshot) => {
+            const data = snapshot.val();
+            
+            if (data) {
+                // Iterar sobre cada vehículo en la base de datos
+                Object.keys(data).forEach(placa => {
+                    const vehiculo = data[placa];
+                    
+                    // Si el estado no es en_ruta, podríamos ocultarlo (opcional)
+                    if(vehiculo.estado === 'ruta_completada' && marcadores[placa]) {
+                        mapa.removeLayer(marcadores[placa]);
+                        delete marcadores[placa];
+                        return;
+                    }
 
-    <footer>
-        <p>&copy; 2025 Mochila "Aura". Envíos Nacionales Perú.</p>
-        <p>HERSCHEL PERÚ</p>
-    </footer>
+                    // Crear el contenido del Popup
+                    const contenidoPopup = `
+                        <div class="info-vehiculo">
+                            <strong>Placa:</strong> ${vehiculo.placa} <br>
+                            <strong>Conductor:</strong> ${vehiculo.conductor} <br>
+                            <strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h
+                        </div>
+                    `;
+
+                    if (marcadores[placa]) {
+                        // Si el marcador ya existe, simplemente actualizar su posición
+                        marcadores[placa].setLatLng([vehiculo.latitud, vehiculo.longitud]);
+                        marcadores[placa].getPopup().setContent(contenidoPopup);
+                    } else {
+                        // Si no existe, crear un nuevo marcador personalizado con la placa
+                        const iconoPersonalizado = L.divIcon({
+                            className: 'etiqueta-placa',
+                            html: vehiculo.placa,
+                            iconSize: [60, 20]
+                        });
+
+                        const nuevoMarcador = L.marker([vehiculo.latitud, vehiculo.longitud], {icon: iconoPersonalizado})
+                            .bindPopup(contenidoPopup)
+                            .addTo(mapa);
+                            
+                        marcadores[placa] = nuevoMarcador;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
