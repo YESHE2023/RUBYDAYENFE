@@ -3,30 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Control - Flota</title>
-    
+    <title>Centro de Control - HERSCHEL CORP</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <style>
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #121212; }
         #mapa { width: 100vw; height: 100vh; }
         
-        /* Diseño del popup sobre el vehículo */
-        .info-vehiculo { font-size: 14px; }
-        .info-vehiculo strong { color: #d32f2f; }
-        
-        /* Diseño del marcador estático con la placa */
+        .marcador-vehiculo { text-align: center; }
+        .flecha-nav {
+            font-size: 24px;
+            display: inline-block;
+            transition: transform 0.5s ease;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
         .etiqueta-placa {
-            background-color: #1a237e;
+            background-color: #0D47A1;
             color: white;
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
             font-size: 12px;
-            text-align: center;
-            border: 1px solid white;
+            border: 2px solid white;
+            margin-top: -5px;
         }
+        
+        /* ALERTA DE LATENCIA: CSS KEYFRAMES */
+        @keyframes parpadeoRojo {
+            0% { background-color: #0D47A1; border-color: white; }
+            50% { background-color: #d32f2f; border-color: yellow; color: yellow;}
+            100% { background-color: #0D47A1; border-color: white; }
+        }
+        .latencia-critica .etiqueta-placa { animation: parpadeoRojo 1s infinite; }
+        .latencia-critica .flecha-nav { color: #d32f2f; }
     </style>
 </head>
 <body>
@@ -37,77 +46,64 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
-        // ⚠️ ATENCIÓN: Debes reemplazar esto con tus llaves reales
+        // Reemplaza con tus credenciales web
         const firebaseConfig = {
-          apiKey: "AIzaSyDWMahl_BBJCNYXT2B_UDIsuw14d3UWOJ4",
-          authDomain: "vngapoyo.firebaseapp.com",
-          databaseURL: "https://vngapoyo-default-rtdb.firebaseio.com",
-          projectId: "vngapoyo",
-          storageBucket: "vngapoyo.firebasestorage.app",
-          messagingSenderId: "1051199667699",
-          appId: "1:1051199667699:web:926de8a6519ca70bf6a686"
+            apiKey: "TU_API_KEY",
+            authDomain: "vngapoyo.firebaseapp.com",
+            databaseURL: "https://vngapoyo-default-rtdb.firebaseio.com",
+            projectId: "vngapoyo",
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // Inicializar el mapa centrado en un punto base (Ej. Lima, Perú)
         const mapa = L.map('mapa').setView([-12.046374, -77.042793], 13);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(mapa);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
 
-        // Diccionario para almacenar los marcadores y no duplicarlos
         let marcadores = {};
+        let datosFlota = {};
 
-        // Escuchar cambios en tiempo real en la base de datos
-        const flotaRef = ref(db, 'flota_activa');
-        onValue(flotaRef, (snapshot) => {
-            const data = snapshot.val();
-            
-            if (data) {
-                // Iterar sobre cada vehículo en la base de datos
-                Object.keys(data).forEach(placa => {
-                    const vehiculo = data[placa];
-                    
-                    // Si el estado no es en_ruta, podríamos ocultarlo (opcional)
-                    if(vehiculo.estado === 'ruta_completada' && marcadores[placa]) {
-                        mapa.removeLayer(marcadores[placa]);
-                        delete marcadores[placa];
-                        return;
-                    }
-
-                    // Crear el contenido del Popup
-                    const contenidoPopup = `
-                        <div class="info-vehiculo">
-                            <strong>Placa:</strong> ${vehiculo.placa} <br>
-                            <strong>Conductor:</strong> ${vehiculo.conductor} <br>
-                            <strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h
-                        </div>
-                    `;
-
-                    if (marcadores[placa]) {
-                        // Si el marcador ya existe, simplemente actualizar su posición
-                        marcadores[placa].setLatLng([vehiculo.latitud, vehiculo.longitud]);
-                        marcadores[placa].getPopup().setContent(contenidoPopup);
-                    } else {
-                        // Si no existe, crear un nuevo marcador personalizado con la placa
-                        const iconoPersonalizado = L.divIcon({
-                            className: 'etiqueta-placa',
-                            html: vehiculo.placa,
-                            iconSize: [60, 20]
-                        });
-
-                        const nuevoMarcador = L.marker([vehiculo.latitud, vehiculo.longitud], {icon: iconoPersonalizado})
-                            .bindPopup(contenidoPopup)
-                            .addTo(mapa);
-                            
-                        marcadores[placa] = nuevoMarcador;
-                    }
-                });
-            }
+        // Escucha en tiempo real
+        onValue(ref(db, 'flota_activa'), (snapshot) => {
+            datosFlota = snapshot.val() || {};
+            renderizarMapa();
         });
+
+        function renderizarMapa() {
+            const tiempoActual = Date.now();
+
+            Object.keys(datosFlota).forEach(placa => {
+                const vehiculo = datosFlota[placa];
+                if (vehiculo.estado === 'ruta_completada') {
+                    if (marcadores[placa]) { mapa.removeLayer(marcadores[placa]); delete marcadores[placa]; }
+                    return;
+                }
+
+                // Cálculo de Latencia (> 3 minutos)
+                const latenciaCritica = (tiempoActual - vehiculo.ultima_actualizacion) > 180000;
+                const claseAlerta = latenciaCritica ? 'latencia-critica' : '';
+
+                const htmlIcono = `
+                    <div class="marcador-vehiculo ${claseAlerta}">
+                        <div class="flecha-nav" style="transform: rotate(${vehiculo.direccion_grados}deg);">🔼</div>
+                        <div class="etiqueta-placa">${vehiculo.placa}</div>
+                    </div>
+                `;
+
+                if (marcadores[placa]) {
+                    marcadores[placa].setLatLng([vehiculo.latitud, vehiculo.longitud]);
+                    marcadores[placa].setIcon(L.divIcon({ className: '', html: htmlIcono, iconSize: [60, 50] }));
+                    marcadores[placa].getPopup().setContent(`<strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h`);
+                } else {
+                    const icono = L.divIcon({ className: '', html: htmlIcono, iconSize: [60, 50] });
+                    marcadores[placa] = L.marker([vehiculo.latitud, vehiculo.longitud], { icon: icono })
+                        .bindPopup(`<strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h`)
+                        .addTo(mapa);
+                }
+            });
+        }
+
+        // Bucle de comprobación de latencia independiente de Firebase (ejecuta cada 5 segundos)
+        setInterval(renderizarMapa, 5000);
     </script>
 </body>
 </html>
