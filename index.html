@@ -4,38 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro de Control - HERSCHEL CORP</title>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #121212; }
+        /* Estilos Globales Oscuros */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050505; }
         #mapa { width: 100vw; height: 100vh; }
         
-        .marcador-vehiculo { text-align: center; }
-        .flecha-nav {
-            font-size: 24px;
-            display: inline-block;
-            transition: transform 0.5s ease;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        .etiqueta-placa {
-            background-color: #0D47A1;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 12px;
-            border: 2px solid white;
-            margin-top: -5px;
+        /* Contenedor del Marcador */
+        .marcador-vehiculo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
-        /* ALERTA DE LATENCIA: CSS KEYFRAMES */
-        @keyframes parpadeoRojo {
-            0% { background-color: #0D47A1; border-color: white; }
-            50% { background-color: #d32f2f; border-color: yellow; color: yellow;}
-            100% { background-color: #0D47A1; border-color: white; }
+        /* Diseño del SVG (Flecha/Nave Aerodinámica) */
+        .icono-nave {
+            width: 100%;
+            height: 100%;
+            /* Transición suave para la rotación del GPS */
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8));
         }
-        .latencia-critica .etiqueta-placa { animation: parpadeoRojo 1s infinite; }
-        .latencia-critica .flecha-nav { color: #d32f2f; }
+
+        /* Diseño del Cuadro de Información (Popup onClick) */
+        .leaflet-popup-content-wrapper {
+            background: rgba(10, 15, 30, 0.95);
+            border: 1px solid #00e5ff;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            border-radius: 6px;
+            color: #e0f7fa;
+        }
+        .leaflet-popup-tip {
+            background: rgba(10, 15, 30, 0.95);
+            border: 1px solid #00e5ff;
+        }
+        .info-popup { font-size: 14px; line-height: 1.6; }
+        .info-popup .placa { color: #00e5ff; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; }
+        .info-popup .dato { color: #b2ebf2; }
+        .info-popup hr { border: 0; border-top: 1px solid rgba(0, 229, 255, 0.3); margin: 8px 0; }
+
+        /* Lógica Visual: Alerta de Latencia Crítica (> 3 min) */
+        @keyframes alertaCritica {
+            0% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1)); transform: scale(1.1); }
+            100% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); }
+        }
+        .latencia-critica .icono-nave {
+            animation: alertaCritica 1s infinite;
+        }
     </style>
 </head>
 <body>
@@ -46,9 +67,9 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
-        // Reemplaza con tus credenciales web
+        // INYECTA TUS LLAVES REALES AQUÍ:
         const firebaseConfig = {
-            apiKey: "TU_API_KEY",
+            apiKey: "AIzaSyDWMahl_BBJCNYXT2B_UDIsuw14d3UWOJ4",
             authDomain: "vngapoyo.firebaseapp.com",
             databaseURL: "https://vngapoyo-default-rtdb.firebaseio.com",
             projectId: "vngapoyo",
@@ -56,13 +77,18 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const mapa = L.map('mapa').setView([-12.046374, -77.042793], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+        
+        // Cambio a CartoDB Dark Matter para el diseño futurista
+        const mapa = L.map('mapa', { zoomControl: false }).setView([-12.046374, -77.042793], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap & CARTO',
+            maxZoom: 19
+        }).addTo(mapa);
+        L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
         let marcadores = {};
         let datosFlota = {};
 
-        // Escucha en tiempo real
         onValue(ref(db, 'flota_activa'), (snapshot) => {
             datosFlota = snapshot.val() || {};
             renderizarMapa();
@@ -73,36 +99,47 @@
 
             Object.keys(datosFlota).forEach(placa => {
                 const vehiculo = datosFlota[placa];
+                
                 if (vehiculo.estado === 'ruta_completada') {
                     if (marcadores[placa]) { mapa.removeLayer(marcadores[placa]); delete marcadores[placa]; }
                     return;
                 }
 
-                // Cálculo de Latencia (> 3 minutos)
                 const latenciaCritica = (tiempoActual - vehiculo.ultima_actualizacion) > 180000;
                 const claseAlerta = latenciaCritica ? 'latencia-critica' : '';
+                const colorNave = latenciaCritica ? '#ff1744' : '#00e5ff'; // Cian neón (normal) o Rojo neón (alerta)
 
-                const htmlIcono = `
-                    <div class="marcador-vehiculo ${claseAlerta}">
-                        <div class="flecha-nav" style="transform: rotate(${vehiculo.direccion_grados}deg);">🔼</div>
-                        <div class="etiqueta-placa">${vehiculo.placa}</div>
+                // SVG inyectado en el HTML. Su forma base apunta hacia el Norte (Arriba).
+                const svgNave = `
+                    <svg viewBox="0 0 24 24" class="icono-nave" style="transform: rotate(${vehiculo.direccion_grados}deg);">
+                        <path d="M12 2L22 22L12 18L2 22L12 2Z" fill="${colorNave}"/>
+                    </svg>
+                `;
+
+                // Toda la información se mueve aquí, solo se lee al ejecutar el evento click
+                const contenidoPopup = `
+                    <div class="info-popup">
+                        <div class="placa">${vehiculo.placa}</div>
+                        <hr>
+                        <div class="dato"><strong>Operador:</strong> ${vehiculo.conductor}</div>
+                        <div class="dato"><strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h</div>
                     </div>
                 `;
 
                 if (marcadores[placa]) {
                     marcadores[placa].setLatLng([vehiculo.latitud, vehiculo.longitud]);
-                    marcadores[placa].setIcon(L.divIcon({ className: '', html: htmlIcono, iconSize: [60, 50] }));
-                    marcadores[placa].getPopup().setContent(`<strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h`);
+                    marcadores[placa].setIcon(L.divIcon({ className: 'marcador-vehiculo ' + claseAlerta, html: svgNave, iconSize: [40, 40] }));
+                    marcadores[placa].getPopup().setContent(contenidoPopup);
                 } else {
-                    const icono = L.divIcon({ className: '', html: htmlIcono, iconSize: [60, 50] });
+                    const icono = L.divIcon({ className: 'marcador-vehiculo ' + claseAlerta, html: svgNave, iconSize: [40, 40] });
                     marcadores[placa] = L.marker([vehiculo.latitud, vehiculo.longitud], { icon: icono })
-                        .bindPopup(`<strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h`)
+                        // offset empuja el popup ligeramente hacia arriba para no tapar la flecha
+                        .bindPopup(contenidoPopup, { closeButton: false, offset: [0, -15] })
                         .addTo(mapa);
                 }
             });
         }
 
-        // Bucle de comprobación de latencia independiente de Firebase (ejecuta cada 5 segundos)
         setInterval(renderizarMapa, 5000);
     </script>
 </body>
