@@ -9,84 +9,86 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* Estilos Globales Oscuros */
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050505; }
-        #mapa { width: 100vw; height: 100vh; }
+        /* Diseño Base */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050505; color: #e0f7fa; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Contenedor del Marcador */
-        .marcador-vehiculo {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        /* Diseño del SVG (Flecha/Nave Aerodinámica) */
-        .icono-nave {
-            width: 100%;
-            height: 100%;
-            /* Transición suave para la rotación del GPS */
-            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8));
-        }
+        /* Estructura a dos columnas */
+        #panel-lateral { width: 350px; background-color: #0a0f1e; border-right: 1px solid #00e5ff; display: flex; flex-direction: column; box-shadow: 2px 0 15px rgba(0, 229, 255, 0.2); z-index: 1000; }
+        #mapa { flex-grow: 1; height: 100vh; }
 
-        /* Diseño del Cuadro de Información (Popup onClick) */
-        .leaflet-popup-content-wrapper {
-            background: rgba(10, 15, 30, 0.95);
-            border: 1px solid #00e5ff;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
-            border-radius: 6px;
-            color: #e0f7fa;
-        }
-        .leaflet-popup-tip {
-            background: rgba(10, 15, 30, 0.95);
-            border: 1px solid #00e5ff;
-        }
-        .info-popup { font-size: 14px; line-height: 1.6; }
-        .info-popup .placa { color: #00e5ff; font-size: 18px; font-weight: bold; letter-spacing: 2px; text-align: center; }
-        .info-popup .dato { color: #b2ebf2; }
+        /* Cabecera del Panel */
+        .cabecera-panel { padding: 20px; background-color: #050814; border-bottom: 1px solid rgba(0, 229, 255, 0.3); text-align: center; }
+        .cabecera-panel h2 { margin: 0; font-size: 18px; letter-spacing: 2px; color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5); }
+        .cabecera-panel span { font-size: 12px; color: #4dd0e1; }
+
+        /* Lista de Unidades */
+        #lista-unidades { overflow-y: auto; padding: 15px; flex-grow: 1; }
+        
+        /* Tarjetas de Vehículo */
+        .tarjeta-unidad { background: rgba(10, 25, 50, 0.6); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 15px; transition: all 0.3s; }
+        .tarjeta-unidad:hover { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+        
+        .tu-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 5px; }
+        .tu-placa { font-size: 18px; font-weight: bold; color: #fff; }
+        .tu-estado { font-size: 12px; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+        
+        .estado-ok { background-color: rgba(0, 255, 0, 0.2); color: #00e676; border: 1px solid #00e676; }
+        .estado-alerta { background-color: rgba(255, 0, 0, 0.2); color: #ff1744; border: 1px solid #ff1744; animation: parpadeoTexto 1s infinite; }
+
+        .tu-datos { font-size: 13px; color: #b2ebf2; margin-bottom: 15px; line-height: 1.6; }
+        
+        /* Botonera de Control */
+        .tu-controles { display: flex; gap: 10px; }
+        .btn-control { flex: 1; padding: 8px; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn-enfocar { background-color: #00e5ff; color: #000; }
+        .btn-enfocar:hover { background-color: #00b8d4; }
+        .btn-reset { background-color: transparent; color: #ff1744; border: 1px solid #ff1744; }
+        .btn-reset:hover { background-color: rgba(255, 23, 68, 0.2); }
+
+        /* Marcadores del Mapa (Reutilizados del diseño anterior) */
+        .marcador-vehiculo { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
+        .icono-nave { width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8)); }
+        
+        .leaflet-popup-content-wrapper { background: rgba(10, 15, 30, 0.95); border: 1px solid #00e5ff; color: #e0f7fa; }
+        .leaflet-popup-tip { background: rgba(10, 15, 30, 0.95); border: 1px solid #00e5ff; }
         .info-popup hr { border: 0; border-top: 1px solid rgba(0, 229, 255, 0.3); margin: 8px 0; }
 
-        /* Lógica Visual: Alerta de Latencia Crítica (> 3 min) */
-        @keyframes alertaCritica {
-            0% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1)); transform: scale(1.1); }
-            100% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); }
-        }
-        .latencia-critica .icono-nave {
-            animation: alertaCritica 1s infinite;
-        }
+        @keyframes alertaCritica { 0% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1)); transform: scale(1.1); } 100% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); } }
+        @keyframes parpadeoTexto { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .latencia-critica .icono-nave { animation: alertaCritica 1s infinite; }
     </style>
 </head>
 <body>
 
-    <div id="mapa"></div>
+    <aside id="panel-lateral">
+        <div class="cabecera-panel">
+            <h2>HERSCHEL CORP</h2>
+            <span id="contador-unidades">MONITOREANDO 0 UNIDADES</span>
+        </div>
+        <div id="lista-unidades">
+            </div>
+    </aside>
+
+    <main id="mapa"></main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        // IMPORTANTE: Se ha añadido el módulo 'remove' para poder borrar sesiones fantasma
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
         // INYECTA TUS LLAVES REALES AQUÍ:
         const firebaseConfig = {
-  apiKey: "AIzaSyDWMahl_BBJCNYXT2B_UDIsuw14d3UWOJ4",
-  authDomain: "vngapoyo.firebaseapp.com",
-  databaseURL: "https://vngapoyo-default-rtdb.firebaseio.com",
-  projectId: "vngapoyo",
-  storageBucket: "vngapoyo.firebasestorage.app",
-  messagingSenderId: "1051199667699",
-  appId: "1:1051199667699:web:926de8a6519ca70bf6a686"
-};
+            apiKey: "AIzaSyDWMahl_BBJCNYXT2B_UDIsuw14d3UWOJ4",
+            authDomain: "vngapoyo.firebaseapp.com",
+            databaseURL: "https://vngapoyo-default-rtdb.firebaseio.com",
+            projectId: "vngapoyo",
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // Cambio a CartoDB Dark Matter para el diseño futurista
-        const mapa = L.map('mapa', { zoomControl: false }).setView([-12.046374, -77.042793], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap & CARTO',
-            maxZoom: 19
-        }).addTo(mapa);
+        const mapa = L.map('mapa', { zoomControl: false }).setView([-12.046374, -77.042793], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapa);
         L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
         let marcadores = {};
@@ -94,11 +96,32 @@
 
         onValue(ref(db, 'flota_activa'), (snapshot) => {
             datosFlota = snapshot.val() || {};
-            renderizarMapa();
+            renderizarInterfaz();
         });
 
-        function renderizarMapa() {
+        // Exponer funciones al entorno global para los botones HTML generados dinámicamente
+        window.enfocarUnidad = (placa) => {
+            if(datosFlota[placa]) {
+                const lat = datosFlota[placa].latitud;
+                const lng = datosFlota[placa].longitud;
+                mapa.flyTo([lat, lng], 16, { animate: true, duration: 1.5 });
+                if(marcadores[placa]) marcadores[placa].openPopup();
+            }
+        };
+
+        window.forzarDesconexion = (placa) => {
+            if(confirm(`¿Estás seguro de forzar la desconexión de la unidad ${placa}? Esto borrará la sesión congelada.`)) {
+                // Supresión del nodo corrupto directamente en la base de datos
+                remove(ref(db, `flota_activa/${placa}`));
+            }
+        };
+
+        function renderizarInterfaz() {
             const tiempoActual = Date.now();
+            const contenedorLista = document.getElementById('lista-unidades');
+            contenedorLista.innerHTML = ''; // Limpiar lista
+            
+            let unidadesActivas = 0;
 
             Object.keys(datosFlota).forEach(placa => {
                 const vehiculo = datosFlota[placa];
@@ -108,42 +131,70 @@
                     return;
                 }
 
-                const latenciaCritica = (tiempoActual - vehiculo.ultima_actualizacion) > 180000;
+                unidadesActivas++;
+
+                // Cálculo de Latencia Operativa
+                const latenciaMs = tiempoActual - vehiculo.ultima_actualizacion;
+                const latenciaCritica = latenciaMs > 180000; // Mayor a 3 minutos
+                
+                // Formateo de tiempo inactivo para el panel
+                let tiempoInactivo = "En línea";
+                if (latenciaCritica) {
+                    const min = Math.floor(latenciaMs / 60000);
+                    tiempoInactivo = `Sin señal: ${min} min`;
+                }
+
                 const claseAlerta = latenciaCritica ? 'latencia-critica' : '';
-                const colorNave = latenciaCritica ? '#ff1744' : '#00e5ff'; // Cian neón (normal) o Rojo neón (alerta)
+                const colorNave = latenciaCritica ? '#ff1744' : '#00e5ff';
+                const claseEstadoUi = latenciaCritica ? 'estado-alerta' : 'estado-ok';
+                const textoEstadoUi = latenciaCritica ? 'PÉRDIDA DE SEÑAL' : 'TRANSMITIENDO';
 
-                // SVG inyectado en el HTML. Su forma base apunta hacia el Norte (Arriba).
-                const svgNave = `
-                    <svg viewBox="0 0 24 24" class="icono-nave" style="transform: rotate(${vehiculo.direccion_grados}deg);">
-                        <path d="M12 2L22 22L12 18L2 22L12 2Z" fill="${colorNave}"/>
-                    </svg>
-                `;
-
-                // Toda la información se mueve aquí, solo se lee al ejecutar el evento click
-                const contenidoPopup = `
-                    <div class="info-popup">
-                        <div class="placa">${vehiculo.placa}</div>
-                        <hr>
-                        <div class="dato"><strong>Operador:</strong> ${vehiculo.conductor}</div>
-                        <div class="dato"><strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h</div>
-                    </div>
-                `;
+                // 1. INYECCIÓN DEL MARCADOR EN EL MAPA
+                const svgNave = `<svg viewBox="0 0 24 24" class="icono-nave" style="transform: rotate(${vehiculo.direccion_grados}deg);"><path d="M12 2L22 22L12 18L2 22L12 2Z" fill="${colorNave}"/></svg>`;
+                const contenidoPopup = `<div class="info-popup"><div style="color:#00e5ff; font-size:16px; font-weight:bold; text-align:center;">${vehiculo.placa}</div><hr><div><strong>Operador:</strong> ${vehiculo.conductor}</div><div><strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h</div></div>`;
 
                 if (marcadores[placa]) {
                     marcadores[placa].setLatLng([vehiculo.latitud, vehiculo.longitud]);
-                    marcadores[placa].setIcon(L.divIcon({ className: 'marcador-vehiculo ' + claseAlerta, html: svgNave, iconSize: [40, 40] }));
+                    marcadores[placa].setIcon(L.divIcon({ className: `marcador-vehiculo ${claseAlerta}`, html: svgNave, iconSize: [40, 40] }));
                     marcadores[placa].getPopup().setContent(contenidoPopup);
                 } else {
-                    const icono = L.divIcon({ className: 'marcador-vehiculo ' + claseAlerta, html: svgNave, iconSize: [40, 40] });
-                    marcadores[placa] = L.marker([vehiculo.latitud, vehiculo.longitud], { icon: icono })
-                        // offset empuja el popup ligeramente hacia arriba para no tapar la flecha
-                        .bindPopup(contenidoPopup, { closeButton: false, offset: [0, -15] })
-                        .addTo(mapa);
+                    const icono = L.divIcon({ className: `marcador-vehiculo ${claseAlerta}`, html: svgNave, iconSize: [40, 40] });
+                    marcadores[placa] = L.marker([vehiculo.latitud, vehiculo.longitud], { icon: icono }).bindPopup(contenidoPopup, { closeButton: false, offset: [0, -15] }).addTo(mapa);
+                }
+
+                // 2. INYECCIÓN DE LA TARJETA EN EL PANEL LATERAL
+                const tarjetaHtml = `
+                    <div class="tarjeta-unidad">
+                        <div class="tu-cabecera">
+                            <span class="tu-placa">${vehiculo.placa}</span>
+                            <span class="tu-estado ${claseEstadoUi}">${textoEstadoUi}</span>
+                        </div>
+                        <div class="tu-datos">
+                            <strong>Operador:</strong> ${vehiculo.conductor}<br>
+                            <strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h<br>
+                            <strong>Estado de Red:</strong> ${tiempoInactivo}
+                        </div>
+                        <div class="tu-controles">
+                            <button class="btn-control btn-enfocar" onclick="enfocarUnidad('${vehiculo.placa}')">Enfocar</button>
+                            <button class="btn-control btn-reset" onclick="forzarDesconexion('${vehiculo.placa}')">Reset</button>
+                        </div>
+                    </div>
+                `;
+                contenedorLista.innerHTML += tarjetaHtml;
+            });
+
+            document.getElementById('contador-unidades').innerText = `MONITOREANDO ${unidadesActivas} UNIDADES`;
+
+            // Limpiar marcadores residuales si fueron borrados con el botón Reset
+            Object.keys(marcadores).forEach(placa => {
+                if(!datosFlota[placa]) {
+                    mapa.removeLayer(marcadores[placa]);
+                    delete marcadores[placa];
                 }
             });
         }
 
-        setInterval(renderizarMapa, 5000);
+        setInterval(renderizarInterfaz, 5000);
     </script>
 </body>
 </html>
