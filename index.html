@@ -3,78 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Control - HERSCHEL CORP</title>
+    <title>HERSCHEL CORP</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwZTVmZiI+PHBhdGggZD0iTTEyIDJMMCA2djYuOGMwIDUuNTUgMy44NCAxMC43NCAxMiAxMy4yaDEuMjdjMS43Ni0uNjggMy4zMy0xLjc3IDQuNi0zLjE0TDEyIDE4di00aDEwLjQ3QzIyLjI2IDExLjg3IDIyIDEwLjMyIDIyIDhWMkwxMiAyeiIvPjwvc3ZnPg==">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* Diseño Base */
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #050505; color: #e0f7fa; display: flex; height: 100vh; overflow: hidden; }
+        /* Variables Paramétricas para Dark/Light Mode */
+        :root {
+            --bg-base: #050505;
+            --bg-panel: #0a0f1e;
+            --border-neon: #00e5ff;
+            --text-main: #e0f7fa;
+            --text-dim: #b2ebf2;
+            --card-bg: rgba(10, 25, 50, 0.6);
+            --btn-focus: #00e5ff;
+            --btn-focus-text: #000;
+            --alert-color: #ff1744;
+            --header-bg: rgba(5, 8, 20, 0.9);
+        }
+
+        body.modo-claro {
+            --bg-base: #f0f4f8;
+            --bg-panel: #ffffff;
+            --border-neon: #0277bd;
+            --text-main: #102027;
+            --text-dim: #37474f;
+            --card-bg: rgba(2, 119, 189, 0.05);
+            --btn-focus: #0277bd;
+            --btn-focus-text: #fff;
+            --header-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s; }
         
-        /* Estructura a dos columnas */
-        #panel-lateral { width: 350px; background-color: #0a0f1e; border-right: 1px solid #00e5ff; display: flex; flex-direction: column; box-shadow: 2px 0 15px rgba(0, 229, 255, 0.2); z-index: 1000; }
-        #mapa { flex-grow: 1; height: 100vh; }
+        /* Barra de Herramientas Superior */
+        #top-bar { height: 50px; background: var(--header-bg); border-bottom: 1px solid var(--border-neon); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 2000; backdrop-filter: blur(5px); }
+        .titulo-top { font-size: 20px; font-weight: bold; letter-spacing: 3px; color: var(--border-neon); text-shadow: 0 0 5px rgba(0, 229, 255, 0.3); display: flex; align-items: center; gap: 15px; }
+        .botones-top { display: flex; gap: 15px; }
+        .icon-btn { background: transparent; border: 1px solid var(--border-neon); color: var(--border-neon); border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .icon-btn:hover { background: var(--border-neon); color: var(--btn-focus-text); box-shadow: 0 0 10px var(--border-neon); }
 
-        /* Cabecera del Panel */
-        .cabecera-panel { padding: 20px; background-color: #050814; border-bottom: 1px solid rgba(0, 229, 255, 0.3); text-align: center; }
-        .cabecera-panel h2 { margin: 0; font-size: 18px; letter-spacing: 2px; color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5); }
-        .cabecera-panel span { font-size: 12px; color: #4dd0e1; }
+        /* Contenedor Principal y Panel Lateral */
+        #contenedor-principal { display: flex; flex-grow: 1; overflow: hidden; }
+        #panel-lateral { width: 350px; background-color: var(--bg-panel); border-right: 1px solid var(--border-neon); display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 1000; }
+        #panel-lateral.oculto { transform: translateX(-100%); position: absolute; height: 100%; }
+        #mapa { flex-grow: 1; height: 100%; transition: width 0.3s ease; }
 
-        /* Lista de Unidades */
+        /* Estructura Interna del Panel */
+        .resumen-panel { padding: 15px; text-align: center; border-bottom: 1px solid rgba(0, 229, 255, 0.2); font-size: 12px; font-weight: bold; color: var(--text-dim); }
         #lista-unidades { overflow-y: auto; padding: 15px; flex-grow: 1; }
         
-        /* Tarjetas de Vehículo */
-        .tarjeta-unidad { background: rgba(10, 25, 50, 0.6); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 15px; transition: all 0.3s; }
-        .tarjeta-unidad:hover { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+        .tarjeta-unidad { background: var(--card-bg); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 6px; padding: 15px; margin-bottom: 15px; transition: 0.3s; }
+        .tarjeta-unidad:hover { border-color: var(--border-neon); }
         
-        .tu-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 5px; }
-        .tu-placa { font-size: 18px; font-weight: bold; color: #fff; }
-        .tu-estado { font-size: 12px; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+        .tu-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(128, 128, 128, 0.2); padding-bottom: 5px; }
+        .tu-placa { font-size: 18px; font-weight: bold; color: var(--text-main); }
+        .tu-estado { font-size: 11px; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
         
-        .estado-ok { background-color: rgba(0, 255, 0, 0.2); color: #00e676; border: 1px solid #00e676; }
-        .estado-alerta { background-color: rgba(255, 0, 0, 0.2); color: #ff1744; border: 1px solid #ff1744; animation: parpadeoTexto 1s infinite; }
+        .estado-ok { background-color: rgba(0, 255, 0, 0.1); color: #00c853; border: 1px solid #00c853; }
+        .estado-alerta { background-color: rgba(255, 0, 0, 0.1); color: var(--alert-color); border: 1px solid var(--alert-color); animation: parpadeo 1s infinite; }
 
-        .tu-datos { font-size: 13px; color: #b2ebf2; margin-bottom: 15px; line-height: 1.6; }
+        .tu-datos { font-size: 13px; color: var(--text-dim); margin-bottom: 15px; line-height: 1.6; }
         
-        /* Botonera de Control */
-        .tu-controles { display: flex; gap: 10px; }
-        .btn-control { flex: 1; padding: 8px; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
-        .btn-enfocar { background-color: #00e5ff; color: #000; }
-        .btn-enfocar:hover { background-color: #00b8d4; }
-        .btn-reset { background-color: transparent; color: #ff1744; border: 1px solid #ff1744; }
+        /* Botones de Control en Tarjeta */
+        .tu-controles { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-control { flex: 1; padding: 6px; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn-enfocar { background-color: var(--btn-focus); color: var(--btn-focus-text); }
+        .btn-enfocar:hover { filter: brightness(1.2); }
+        .btn-historial { background-color: transparent; border: 1px solid #ffb300; color: #ffb300; }
+        .btn-historial:hover { background-color: rgba(255, 179, 0, 0.2); }
+        .btn-reset { background-color: transparent; color: var(--alert-color); border: 1px solid var(--alert-color); }
         .btn-reset:hover { background-color: rgba(255, 23, 68, 0.2); }
 
-        /* Marcadores del Mapa (Reutilizados del diseño anterior) */
+        /* Elementos del Mapa */
         .marcador-vehiculo { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
-        .icono-nave { width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8)); }
+        .icono-nave { width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); filter: drop-shadow(0 0 6px var(--border-neon)); }
         
-        .leaflet-popup-content-wrapper { background: rgba(10, 15, 30, 0.95); border: 1px solid #00e5ff; color: #e0f7fa; }
-        .leaflet-popup-tip { background: rgba(10, 15, 30, 0.95); border: 1px solid #00e5ff; }
+        .leaflet-popup-content-wrapper { background: var(--header-bg); border: 1px solid var(--border-neon); color: var(--text-main); }
+        .leaflet-popup-tip { background: var(--header-bg); border: 1px solid var(--border-neon); }
         .info-popup hr { border: 0; border-top: 1px solid rgba(0, 229, 255, 0.3); margin: 8px 0; }
 
-        @keyframes alertaCritica { 0% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1)); transform: scale(1.1); } 100% { filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8)); transform: scale(1); } }
-        @keyframes parpadeoTexto { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .latencia-critica .icono-nave { animation: alertaCritica 1s infinite; }
+        @keyframes parpadeo { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .latencia-critica .icono-nave { filter: drop-shadow(0 0 10px var(--alert-color)); }
     </style>
 </head>
 <body>
 
-    <aside id="panel-lateral">
-        <div class="cabecera-panel">
-            <h2>HERSCHEL CORP</h2>
-            <span id="contador-unidades">MONITOREANDO 0 UNIDADES</span>
+    <header id="top-bar">
+        <div class="titulo-top">
+            <button class="icon-btn" onclick="toggleMenu()" title="Ocultar/Mostrar Menú">☰</button>
+            HERSCHEL CORP
         </div>
-        <div id="lista-unidades">
-            </div>
-    </aside>
+        <div class="botones-top">
+            <button class="icon-btn" onclick="toggleTema()" title="Cambiar Tema">🌙 / ☀️</button>
+            <button class="icon-btn" onclick="abrirAjustes()" title="Configuración Sistema">⚙️</button>
+        </div>
+    </header>
 
-    <main id="mapa"></main>
+    <div id="contenedor-principal">
+        <aside id="panel-lateral">
+            <div class="resumen-panel" id="contador-unidades">SISTEMA INICIADO</div>
+            <div id="lista-unidades"></div>
+        </aside>
+        <main id="mapa"></main>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        // IMPORTANTE: Se ha añadido el módulo 'remove' para poder borrar sesiones fantasma
-        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, query, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
         // INYECTA TUS LLAVES REALES AQUÍ:
         const firebaseConfig = {
@@ -87,39 +125,92 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        const mapa = L.map('mapa', { zoomControl: false }).setView([-12.046374, -77.042793], 12);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapa);
+        // Configuración de Capas Base
+        const capaOscura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+        const capaClara = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+
+        const mapa = L.map('mapa', { zoomControl: false, layers: [capaOscura] }).setView([-12.046374, -77.042793], 12);
         L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
         let marcadores = {};
+        let rutasTrazadas = {}; // Almacena las polilíneas
         let datosFlota = {};
+        let modoClaroActivo = false;
 
         onValue(ref(db, 'flota_activa'), (snapshot) => {
             datosFlota = snapshot.val() || {};
             renderizarInterfaz();
         });
 
-        // Exponer funciones al entorno global para los botones HTML generados dinámicamente
+        // Funciones Globales UI
+        window.toggleMenu = () => {
+            const panel = document.getElementById('panel-lateral');
+            panel.classList.toggle('oculto');
+            setTimeout(() => mapa.invalidateSize(), 300); // Recalcula el mapa al expandirse
+        };
+
+        window.toggleTema = () => {
+            modoClaroActivo = !modoClaroActivo;
+            document.body.classList.toggle('modo-claro');
+            if (modoClaroActivo) { mapa.removeLayer(capaOscura); mapa.addLayer(capaClara); } 
+            else { mapa.removeLayer(capaClara); mapa.addLayer(capaOscura); }
+        };
+
+        window.abrirAjustes = () => {
+            alert("Módulo de Configuración de Sistema. Implementación pendiente en próxima fase de arquitectura.");
+        };
+
         window.enfocarUnidad = (placa) => {
             if(datosFlota[placa]) {
-                const lat = datosFlota[placa].latitud;
-                const lng = datosFlota[placa].longitud;
-                mapa.flyTo([lat, lng], 16, { animate: true, duration: 1.5 });
+                mapa.flyTo([datosFlota[placa].latitud, datosFlota[placa].longitud], 16, { animate: true, duration: 1.2 });
                 if(marcadores[placa]) marcadores[placa].openPopup();
             }
         };
 
         window.forzarDesconexion = (placa) => {
-            if(confirm(`¿Estás seguro de forzar la desconexión de la unidad ${placa}? Esto borrará la sesión congelada.`)) {
-                // Supresión del nodo corrupto directamente en la base de datos
+            if(confirm(`Atención: Va a purgar la sesión de ${placa}. ¿Proceder?`)) {
                 remove(ref(db, `flota_activa/${placa}`));
+                if(rutasTrazadas[placa]) { mapa.removeLayer(rutasTrazadas[placa]); delete rutasTrazadas[placa]; }
+            }
+        };
+
+        // Algoritmo de Trazado de Ruta Histórica (Limitado a 50 nodos)
+        window.toggleHistorial = async (placa) => {
+            if (rutasTrazadas[placa]) {
+                mapa.removeLayer(rutasTrazadas[placa]);
+                delete rutasTrazadas[placa];
+                return;
+            }
+
+            const dbRef = ref(db, `flota_historial/${placa}`);
+            const consulta = query(dbRef, limitToLast(50));
+            
+            try {
+                const snapshot = await get(consulta);
+                if (snapshot.exists()) {
+                    const datos = snapshot.val();
+                    // Ordenamiento cronológico de los puntos para evitar trazos erráticos
+                    const arregloPuntos = Object.values(datos)
+                        .sort((a, b) => a.ultima_actualizacion - b.ultima_actualizacion)
+                        .map(p => [p.latitud, p.longitud]);
+                    
+                    const colorTrazo = modoClaroActivo ? '#0277bd' : '#ffb300';
+                    const linea = L.polyline(arregloPuntos, { color: colorTrazo, weight: 4, opacity: 0.8, dashArray: '10, 10' }).addTo(mapa);
+                    
+                    mapa.fitBounds(linea.getBounds(), { padding: [50, 50] });
+                    rutasTrazadas[placa] = linea;
+                } else {
+                    alert('Operativa sin registros históricos recientes.');
+                }
+            } catch (error) {
+                console.error("Fallo al extraer historial:", error);
             }
         };
 
         function renderizarInterfaz() {
             const tiempoActual = Date.now();
             const contenedorLista = document.getElementById('lista-unidades');
-            contenedorLista.innerHTML = ''; // Limpiar lista
+            contenedorLista.innerHTML = ''; 
             
             let unidadesActivas = 0;
 
@@ -128,30 +219,25 @@
                 
                 if (vehiculo.estado === 'ruta_completada') {
                     if (marcadores[placa]) { mapa.removeLayer(marcadores[placa]); delete marcadores[placa]; }
+                    if (rutasTrazadas[placa]) { mapa.removeLayer(rutasTrazadas[placa]); delete rutasTrazadas[placa]; }
                     return;
                 }
 
                 unidadesActivas++;
-
-                // Cálculo de Latencia Operativa
                 const latenciaMs = tiempoActual - vehiculo.ultima_actualizacion;
-                const latenciaCritica = latenciaMs > 180000; // Mayor a 3 minutos
+                const latenciaCritica = latenciaMs > 180000; 
                 
-                // Formateo de tiempo inactivo para el panel
-                let tiempoInactivo = "En línea";
-                if (latenciaCritica) {
-                    const min = Math.floor(latenciaMs / 60000);
-                    tiempoInactivo = `Sin señal: ${min} min`;
-                }
+                let tiempoInactivo = "Transmisión Activa";
+                if (latenciaCritica) tiempoInactivo = `Pérdida de señal: ${Math.floor(latenciaMs / 60000)} min`;
 
                 const claseAlerta = latenciaCritica ? 'latencia-critica' : '';
-                const colorNave = latenciaCritica ? '#ff1744' : '#00e5ff';
+                // Dinamismo de color en SVG según el tema y estado
+                let colorNave = latenciaCritica ? 'var(--alert-color)' : (modoClaroActivo ? '#0277bd' : '#00e5ff');
                 const claseEstadoUi = latenciaCritica ? 'estado-alerta' : 'estado-ok';
-                const textoEstadoUi = latenciaCritica ? 'PÉRDIDA DE SEÑAL' : 'TRANSMITIENDO';
+                const textoEstadoUi = latenciaCritica ? 'CRÍTICO' : 'EN RUTA';
 
-                // 1. INYECCIÓN DEL MARCADOR EN EL MAPA
                 const svgNave = `<svg viewBox="0 0 24 24" class="icono-nave" style="transform: rotate(${vehiculo.direccion_grados}deg);"><path d="M12 2L22 22L12 18L2 22L12 2Z" fill="${colorNave}"/></svg>`;
-                const contenidoPopup = `<div class="info-popup"><div style="color:#00e5ff; font-size:16px; font-weight:bold; text-align:center;">${vehiculo.placa}</div><hr><div><strong>Operador:</strong> ${vehiculo.conductor}</div><div><strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h</div></div>`;
+                const contenidoPopup = `<div class="info-popup"><div style="font-size:16px; font-weight:bold; text-align:center;">${vehiculo.placa}</div><hr><div>Operador: ${vehiculo.conductor}</div><div>Velocidad: ${vehiculo.velocidad_kmh} km/h</div></div>`;
 
                 if (marcadores[placa]) {
                     marcadores[placa].setLatLng([vehiculo.latitud, vehiculo.longitud]);
@@ -162,35 +248,30 @@
                     marcadores[placa] = L.marker([vehiculo.latitud, vehiculo.longitud], { icon: icono }).bindPopup(contenidoPopup, { closeButton: false, offset: [0, -15] }).addTo(mapa);
                 }
 
-                // 2. INYECCIÓN DE LA TARJETA EN EL PANEL LATERAL
-                const tarjetaHtml = `
+                contenedorLista.innerHTML += `
                     <div class="tarjeta-unidad">
                         <div class="tu-cabecera">
                             <span class="tu-placa">${vehiculo.placa}</span>
                             <span class="tu-estado ${claseEstadoUi}">${textoEstadoUi}</span>
                         </div>
                         <div class="tu-datos">
-                            <strong>Operador:</strong> ${vehiculo.conductor}<br>
-                            <strong>Velocidad:</strong> ${vehiculo.velocidad_kmh} km/h<br>
-                            <strong>Estado de Red:</strong> ${tiempoInactivo}
+                            Ope: ${vehiculo.conductor}<br>
+                            Vel: ${vehiculo.velocidad_kmh} km/h<br>
+                            Est: ${tiempoInactivo}
                         </div>
                         <div class="tu-controles">
-                            <button class="btn-control btn-enfocar" onclick="enfocarUnidad('${vehiculo.placa}')">Enfocar</button>
-                            <button class="btn-control btn-reset" onclick="forzarDesconexion('${vehiculo.placa}')">Reset</button>
+                            <button class="btn-control btn-enfocar" onclick="enfocarUnidad('${vehiculo.placa}')">Foco</button>
+                            <button class="btn-control btn-historial" onclick="toggleHistorial('${vehiculo.placa}')">Ruta</button>
+                            <button class="btn-control btn-reset" onclick="forzarDesconexion('${vehiculo.placa}')">Borrar</button>
                         </div>
                     </div>
                 `;
-                contenedorLista.innerHTML += tarjetaHtml;
             });
 
-            document.getElementById('contador-unidades').innerText = `MONITOREANDO ${unidadesActivas} UNIDADES`;
+            document.getElementById('contador-unidades').innerText = `UNIDADES EN CAMPO: ${unidadesActivas}`;
 
-            // Limpiar marcadores residuales si fueron borrados con el botón Reset
             Object.keys(marcadores).forEach(placa => {
-                if(!datosFlota[placa]) {
-                    mapa.removeLayer(marcadores[placa]);
-                    delete marcadores[placa];
-                }
+                if(!datosFlota[placa]) { mapa.removeLayer(marcadores[placa]); delete marcadores[placa]; }
             });
         }
 
